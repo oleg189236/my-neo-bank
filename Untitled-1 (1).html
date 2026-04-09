@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pylon Bank Pro - Ultimate Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* Dark Theme Variables (Default) */
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #3b82f6;
+            --sidebar-bg: #1b2838;
+            --steam-grad: linear-gradient(90deg, #1b2838 0%, #2a475e 100%);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --glass: rgba(30, 41, 59, 0.7);
+            --text-main: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border: #334155;
+        }
+        .light-theme {
+            --bg-dark: #f1f5f9;
+            --card-bg: #ffffff;
+            --sidebar-bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-dim: #64748b;
+            --border: #e2e8f0;
+        }
+        body { margin: 0; font-family: 'Inter', 'Segoe UI', sans-serif; background: var(--bg-dark); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; transition: background 0.3s, color 0.3s; }
+        .hidden { display: none !important; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+        /* Auth */
+        .auth { min-height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at top, #1e293b, #0f172a); }
+        .auth-box { background: var(--card-bg); padding: 40px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 400px; text-align: center; color: var(--text-main); }
+        .auth-box input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-dark); color: var(--text-main); box-sizing: border-box; }
+        .auth-box button { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; border: none; background: var(--accent); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .auth-box button:hover { opacity: 0.9; transform: translateY(-2px); }
+        .auth-box .secondary { background: #475569; }
+        
+        /* Supercell Style Account Switcher */
+        .saved-accounts { margin-top: 20px; border-top: 1px solid #334155; padding-top: 20px; }
+        .account-item { display: flex; align-items: center; gap: 15px; background: #0f172a; padding: 10px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .account-item:hover { border-color: var(--accent); background: #1e293b; }
+        .account-item img { width: 40px; height: 40px; border-radius: 50%; }
+        .account-item-info { text-align: left; flex: 1; }
+        .account-item-info b { display: block; font-size: 14px; }
+        .account-item-info span { font-size: 12px; color: var(--text-dim); }
+        .sc-badge { background: #00eeff; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-left: auto; }
+
+        /* Layout */
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--sidebar-bg); padding: 25px; border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; box-sizing: border-box; }
+        .sidebar h2 { color: var(--accent); font-size: 22px; margin-bottom: 30px; }
+        .nav-btn { background: transparent; border: none; color: var(--text-dim); padding: 12px 15px; text-align: left; border-radius: 8px; cursor: pointer; font-size: 16px; margin-bottom: 5px; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .nav-btn:hover, .nav-btn.active { background: var(--accent); color: #fff; }
+        .nav-btn i { font-size: 18px; }
+        .main { flex: 1; padding: 40px; max-width: 1100px; margin: 0 auto; }
+
+        /* Profile Section */
+        .steam-profile { background: var(--steam-grad); padding: 30px; border-radius: 8px; display: flex; align-items: center; gap: 25px; border-bottom: 2px solid var(--accent); margin-bottom: 30px; position: relative; overflow: hidden; }
+        .steam-profile::after { content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 100%; background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05)); pointer-events: none; }
+        .avatar-container { position: relative; width: 120px; height: 120px; border: 2px solid var(--accent); padding: 2px; }
+        .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-info { flex: 1; }
+        .profile-info h1 { margin: 0; font-size: 28px; }
+        .level-badge { background: #4b6b75; border: 2px solid #85d0fb; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; position: absolute; right: -10px; top: -10px; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .xp-bar { background: #171a21; height: 10px; border-radius: 5px; margin-top: 10px; position: relative; overflow: hidden; }
+        .xp-fill { background: linear-gradient(90deg, #4b6b75, #85d0fb); height: 100%; transition: 1s ease-out; }
+
+        /* Achievements */
+        .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; margin-top: 20px; }
+        .badge-item { background: #233c51; padding: 10px; border-radius: 4px; text-align: center; filter: grayscale(1); opacity: 0.5; transition: 0.3s; font-size: 10px; }
+        .badge-item.unlocked { filter: grayscale(0); opacity: 1; border: 1px solid var(--accent); box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+        .badge-icon { font-size: 24px; display: block; margin-bottom: 5px; }
+
+        /* Friends List */
+        .friend-item { display: flex; align-items: center; gap: 15px; padding: 15px; background: #2a475e; border-radius: 8px; margin-bottom: 10px; }
+        .friend-item img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+        .friend-info { flex: 1; }
+        .friend-info h4 { margin: 0; font-size: 18px; }
+        .friend-info span { color: #94a3b8; font-size: 14px; }
+        .friend-actions button { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        .friend-actions button:hover { opacity: 0.9; }
+
+        /* Cards & Components */
+        .card { background: var(--card-bg); border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .bank-card { width: 350px; height: 200px; background: linear-gradient(135deg, #3b82f6, #1e40af); border-radius: 15px; padding: 25px; position: relative; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .card-chip { width: 50px; height: 40px; background: #fbbf24; border-radius: 8px; margin-bottom: 30px; }
+        .card-number { font-size: 22px; letter-spacing: 2px; }
+        
+        /* Operations */
+        .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .btn-op { background: var(--accent); border: none; padding: 15px; border-radius: 10px; color: white; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-op.withdraw { background: #475569; }
+        .btn-op:hover { transform: scale(1.02); filter: brightness(1.1); }
+
+        /* Chat System */
+        .chat-container { height: 400px; display: flex; flex-direction: column; background: var(--bg-dark); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .chat-msg { max-width: 80%; padding: 10px 15px; border-radius: 12px; font-size: 14px; position: relative; }
+        .msg-received { background: var(--card-bg); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border); }
+        .msg-sent { background: var(--accent); align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg-author { font-size: 10px; color: var(--info); margin-bottom: 4px; display: block; font-weight: bold; }
+        .chat-input-area { display: flex; padding: 15px; background: var(--card-bg); gap: 10px; border-top: 1px solid var(--border); }
+        .chat-input-area input { flex: 1; background: var(--bg-dark); border: 1px solid var(--border); padding: 10px; border-radius: 8px; color: var(--text-main); }
+
+        .history-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .amount-plus { color: var(--success); }
+        .amount-minus { color: var(--danger); }
+
+        /* Market & Investments */
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .market-item { background: #2a475e; border-radius: 10px; overflow: hidden; transition: 0.3s; border: 1px solid transparent; }
+        .market-item:hover { border-color: var(--accent); }
+        .market-img { width: 100%; height: 120px; background: #1b2838; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        .market-content { padding: 15px; }
+        
+        #stockChartWrapper { height: 250px; margin-top: 20px; position: relative; }
+
+        /* Notifications */
+        #notify-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .notification { background: var(--card-bg); border-left: 4px solid var(--accent); padding: 15px 25px; border-radius: 4px; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* Quests */
+        .quest-item { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .quest-info { display: flex; align-items: center; gap: 15px; }
+        .quest-icon { width: 40px; height: 40px; background: #2a475e; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--warning); }
+        
+        /* Credits Section */
+        .loan-card { background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid #334155; padding: 20px; border-radius: 12px; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-online { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+
+        /* Trust Meter */
+        .trust-container { margin-bottom: 20px; }
+        .trust-level-display { font-size: 18px; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .trust-bar { background: #334155; height: 8px; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .trust-fill { background: var(--accent); height: 100%; transition: width 0.5s ease; }
+        .suggested-friends { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; }
+
+        /* Settings */
+        .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #334155; }
+        .toggle { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        /* Custom Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .modal-content h3 { margin-top: 0; color: var(--accent); }
+        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-dark); color: var(--text-main); box-sizing: border-box; }
+        .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
+        
+        .currency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .currency-item { background: var(--bg-dark); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--border); }
+        .currency-val { font-weight: bold; font-size: 18px; display: block; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="auth" class="auth">
+    <div class="auth-box">
+        <h2 style="color: var(--accent);">🏦 PYLON BANK</h2>
+        <p style="font-size: 14px; color: #94a3b8;">Безопасный вход в систему</p>
+        <input id="authPhone" placeholder="Номер телефона">
+        <input id="authPass" type="password" placeholder="Пароль">
+        <button onclick="smartLogin()">Войти или Создать</button>
+        
+        <div id="savedAccounts" class="saved-accounts hidden">
+            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">СОХРАНЕННЫЕ АККАУНТЫ</p>
+            <div id="accountsList"></div>
+        </div>
+    </div>
+</div>
+
+<div id="app" class="app hidden">
+    <div class="sidebar">
+        <h2>🏦 Pylon Bank</h2>
+        <button class="nav-btn active" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Главная</button>
+        <button class="nav-btn" onclick="showSection('profile')"><i class="fas fa-user-circle"></i> Мой Профиль</button>
+        <button class="nav-btn" onclick="showSection('exchange')"><i class="fas fa-chart-line"></i> Биржа & Акции</button>
+        <button class="nav-btn" onclick="showSection('cards')"><i class="fas fa-credit-card"></i> Мои карты</button>
+        <button class="nav-btn" onclick="showSection('loans')"><i class="fas fa-hand-holding-usd"></i> Кредиты</button>
+        <button class="nav-btn" onclick="showSection('market')"><i class="fas fa-shopping-bag"></i> Маркет</button>
+        <button class="nav-btn" onclick="showSection('chat')"><i class="fas fa-comments"></i> Чат Сообщества</button>
+        <button class="nav-btn" onclick="showSection('friends')"><i class="fas fa-users"></i> Друзья</button>
+        <button class="nav-btn" onclick="showSection('history')"><i class="fas fa-history"></i> История транзакций</button>
+        <button class="nav-btn" onclick="showSection('settings')"><i class="fas fa-cog"></i> Настройки</button>
+        <button class="nav-btn" onclick="logout()" style="margin-top: 20px; color: var(--danger)"><i class="fas fa-sign-out-alt"></i> Выход</button>
+    </div>
+
+    <div class="main">
+        <!-- Dashboard -->
+        <div id="dashboard">
+            <div id="dailyReward" class="card" style="background: linear-gradient(90deg, #1e293b, #334155); border-left: 5px solid var(--warning);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0; color: var(--warning);">Ежедневный бонус!</h3>
+                        <p style="margin: 5px 0 0; font-size: 14px;">Заберите свои 500 ₸ за посещение сегодня.</p>
+                    </div>
+                    <button class="btn-op" style="background: var(--warning); color: #000; padding: 8px 20px;" onclick="claimDaily()">Забрать</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <p style="color: #94a3b8; margin: 0;">Общий баланс</p>
+                <h1 id="mainBalance" style="font-size: 42px; margin: 10px 0;">0 ₸</h1>
+                <div class="actions">
+                    <button class="btn-op" onclick="openActionModal('deposit')"><i class="fas fa-plus-circle"></i> Пополнить</button>
+                    <button class="btn-op withdraw" onclick="openActionModal('withdraw')"><i class="fas fa-minus-circle"></i> Вывести</button>
+                    <button class="btn-op" onclick="openActionModal('transfer')"><i class="fas fa-exchange-alt"></i> Перевод</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Накопительный счет (12% годовых)</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="savingsBalance" style="font-size: 24px;">0 ₸</span>
+                    <button class="nav-btn" onclick="openActionModal('savings')" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); margin: 0;"><i class="fas fa-piggy-bank"></i> Перевести</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Задания дня</h3>
+                <div id="questsList">
+                    <div class="quest-item">
+                        <div class="quest-info">
+                            <div class="quest-icon"><i class="fas fa-exchange-alt"></i></div>
+                            <div>
+                                <b>Сделать перевод</b><br>
+                                <small>Награда: 100 XP</small>
+                            </div>
+                        </div>
+                        <span id="questStatus1" style="color: var(--danger)">0/1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile -->
+        <div id="profile" class="hidden">
+            <div class="steam-profile">
+                <div class="avatar-container">
+                    <img src="https://avatars.githubusercontent.com/u/1?v=4" id="userAvatar">
+                    <div class="level-badge" id="userLevel">1</div>
+                </div>
+                <div class="profile-info">
+                    <h1 id="profileName">User Name</h1>
+                    <p id="profileStatus" style="color: #85d0fb; margin: 5px 0;">В сети: Управляет финансами</p>
+                    <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width: 30%;"></div></div>
+                    <p style="font-size: 12px; color: #94a3b8;">Опыт до уровня: <span id="xpStatus">300/1000</span> XP</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>О себе</h3>
+                <p id="userBio">Этот пользователь пока ничего не рассказал о себе, но он точно богат!</p>
+                <button class="nav-btn" onclick="editProfile()" style="margin: 0;"><i class="fas fa-edit"></i> Редактировать профиль</button>
+            </div>
+            
+            <div class="card">
+                <h3>Достижения</h3>
+                <div id="achievementsGrid" class="badges-grid"></div>
+            </div>
+        </div>
+
+        <!-- Exchange / Stocks -->
+        <div id="exchange" class="hidden">
+            <div class="card">
+                <h2>Курсы валют & Биржа</h2>
+                <div class="currency-grid">
+                    <div class="currency-item">
+                        <small>USD/KZT</small>
+                        <span class="currency-val" id="rate-usd">450.20</span>
+                    </div>
+                    <div class="currency-item">
+                        <small>EUR/KZT</small>
+                        <span class="currency-val" id="rate-eur">485.50</span>
+                    </div>
+                    <div class="currency-item">
+                        <small>BTC/USD</small>
+                        <span class="currency-val" id="rate-btc">64,230</span>
+                    </div>
+                </div>
+                <p>Курс акций NEO Tech (NTC) в реальном времени</p>
+                <div id="stockChartWrapper">
+                    <canvas id="stockCanvas"></canvas>
+                </div>
+                <div style="margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="loan-card" style="background: var(--bg-dark);">
+                        <h3>NEO Tech (NTC)</h3>
+                        <p id="stockPrice">Цена: 1,240 ₸</p>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-op" style="flex: 1" onclick="buyStock('NTC')">Купить</button>
+                            <button class="btn-op withdraw" style="flex: 1" onclick="sellStock('NTC')">Продать</button>
+                        </div>
+                        <p style="font-size: 12px; margin-top: 10px;">В портфеле: <span id="ownedStocks">0</span> шт.</p>
+                    </div>
+                    <div class="loan-card" style="background: var(--bg-dark);">
+                        <h3>Global Energy (GE)</h3>
+                        <p>Цена: 890 ₸</p>
+                        <button class="btn-op" style="width: 100%" disabled>Скоро в продаже</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market -->
+        <div id="market" class="hidden">
+            <div class="card">
+                <h2>Магазин привилегий</h2>
+                <div class="market-grid">
+                    <div class="market-item">
+                        <div class="market-img">💎</div>
+                        <div class="market-content">
+                            <h4>Статус VIP</h4>
+                            <p style="font-size: 12px; color: #94a3b8;">+20% к XP за операции</p>
+                            <p><b>50,000 ₸</b></p>
+                            <button class="btn-op" style="width: 100%" onclick="buyMarket('vip', 50000)">Купить</button>
+                        </div>
+                    </div>
+                    <div class="market-item">
+                        <div class="market-img">🔥</div>
+                        <div class="market-content">
+                            <h4>Ник в огне</h4>
+                            <p style="font-size: 12px; color: #94a3b8;">Визуальный эффект профиля</p>
+                            <p><b>15,000 ₸</b></p>
+                            <button class="btn-op" style="width: 100%" onclick="buyMarket('fire', 15000)">Купить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Section -->
+        <div id="chat" class="hidden">
+            <div class="card">
+                <h2>Чат сообщества</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="Введите сообщение...">
+                        <button class="btn-op" onclick="sendChatMessage()" style="padding: 10px 20px;"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loans -->
+        <div id="loans" class="hidden">
+            <div class="card">
+                <h2>Кредитный центр</h2>
+                <div class="trust-container">
+                    <div class="trust-level-display">
+                        <i class="fas fa-shield-alt"></i> Уровень доверия: <span id="trustLevelLabel">1</span>/10
+                    </div>
+                    <div class="trust-bar"><div id="trustBarFill" class="trust-fill" style="width: 10%;"></div></div>
+                    <p style="font-size: 12px; color: var(--text-dim); margin-top: 5px;">Повышайте доверие, вовремя погашая кредиты.</p>
+                </div>
+                <p>Ваш текущий лимит: <b id="loanLimit">100,000 ₸</b></p>
+                <div class="loan-card">
+                    <h3>Взять быстрый займ</h3>
+                    <p>Процентная ставка: 15%</p>
+                    <input type="number" id="loanInput" placeholder="Введите сумму" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-dark); color: white;">
+                    <button class="btn-op" style="width: 100%;" onclick="takeLoan()">Оформить кредит</button>
+                </div>
+                
+                <div id="activeLoans" style="margin-top: 20px;">
+                    <!-- Loans here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div id="settings" class="hidden">
+            <div class="card">
+                <h2>Настройки</h2>
+                <div class="settings-row">
+                    <span>PUSH-Уведомления</span>
+                    <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <span>Светлая тема оформления</span>
+                    <label class="toggle"><input type="checkbox" id="themeToggle" onchange="toggleTheme()"><span class="slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <span>Режим разработчика</span>
+                    <label class="toggle"><input type="checkbox" onchange="notify('Режим разработчика активирован')"><span class="slider"></span></label>
+                </div>
+                <button class="btn-op withdraw" style="margin-top: 20px;" onclick="resetAccount()">Сбросить прогресс</button>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div id="cards" class="hidden">
+            <div class="bank-card">
+                <div class="card-chip"></div>
+                <div class="card-number" id="fullCardNum">**** **** **** 0000</div>
+                <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+                    <span>NEO HOLDER</span>
+                    <span>12/29</span>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 20px;">
+                <h3>Управление картой</h3>
+                <button class="btn-op withdraw" onclick="alert('Карта временно заморожена для безопасности')"><i class="fas fa-snowflake"></i> Заморозить карту</button>
+            </div>
+        </div>
+
+        <!-- Friends -->
+        <div id="friends" class="hidden">
+            <div class="card">
+                <h3>Мои друзья</h3>
+                <div id="friendsList">
+                    <!-- Friends will be rendered here -->
+                </div>
+                
+                <div class="suggested-friends">
+                    <h4>Вы можете их знать</h4>
+                    <div id="suggestedFriendsList"></div>
+                </div>
+
+                <button class="btn-op" onclick="addFriend()" style="margin-top: 20px;"><i class="fas fa-user-plus"></i> Добавить друга</button>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div id="history" class="hidden">
+            <div class="card">
+                <h3>Последние действия</h3>
+                <div id="fullHistoryList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Global Modal -->
+<div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h3 id="modalTitle">Операция</h3>
+        <div id="modalBody"></div>
+        <div class="modal-footer">
+            <button id="modalConfirmBtn" class="btn-op">Подтвердить</button>
+            <button onclick="closeModal()" class="btn-op withdraw">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<div id="notify-container"></div>
+
+<script>
+let users = JSON.parse(localStorage.getItem('users')) || [];
+let currentUser = null;
+let stockChart = null;
+let stockData = [1200, 1220, 1180, 1240, 1260, 1240, 1300];
+
+const save = () => localStorage.setItem('users', JSON.stringify(users));
+
+const ACHIEVEMENTS_DATA = [
+    { id: 'mil', title: 'Миллионер', icon: '💎', desc: 'Баланс > 1млн', check: u => u.balance >= 1000000 },
+    { id: 'saver', title: 'Инвестор', icon: '📈', desc: 'Есть накопления', check: u => u.savings > 0 },
+    { id: 'generous', title: 'Меценат', icon: '🎁', desc: 'Сделал перевод', check: u => u.history.some(h => h.type.includes('Перевод пользователю')) },
+    { id: 'level5', title: 'Ветеран', icon: '🎖️', desc: 'Достиг 5 уровня', check: u => u.level >= 5 },
+    { id: 'active', title: 'Актив', icon: '⚡', desc: '5+ операций', check: u => u.history.length >= 5 },
+    { id: 'social', title: 'Общительный', icon: '🤝', desc: 'Добавил друга', check: u => u.friends && u.friends.length > 0 }
+];
+
+function notify(text, type = 'info') {
+    const container = document.getElementById('notify-container');
+    const el = document.createElement('div');
+    el.className = 'notification';
+    el.style.borderLeftColor = type === 'danger' ? 'var(--danger)' : 'var(--accent)';
+    el.innerHTML = `<i class="fas fa-bell"></i> ${text}`;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+}
+
+function updateSavedAccounts() {
+    const list = document.getElementById('accountsList');
+    const container = document.getElementById('savedAccounts');
+    list.innerHTML = '';
+    if (users.length > 0) {
+        container.classList.remove('hidden');
+        users.slice(0, 3).forEach((u, idx) => {
+            list.innerHTML += `
+                <div class="account-item" onclick="quickLogin(${users.indexOf(u)})">
+                    <img src="${u.avatar}">
+                    <div class="account-item-info">
+                        <b>${u.name}</b>
+                        <span>${u.phone}</span>
+                    </div>
+                    <div class="sc-badge">ID</div>
+                </div>
+            `;
+        });
+    }
+}
+
+function quickLogin(idx) {
+    currentUser = idx;
+    localStorage.setItem('session', idx);
+    initApp();
+    notify(`Добро пожаловать обратно, ${users[idx].name}!`);
+}
+
+function smartLogin() {
+    const phone = document.getElementById('authPhone').value.trim();
+    const password = document.getElementById('authPass').value.trim();
+    if(!phone || !password) return notify('Введите данные!', 'danger');
+
+    let idx = users.findIndex(u => u.phone === phone);
+    
+    if(idx === -1) {
+        // Авто-регистрация
+        users.push({
+            name: 'Новый игрок', phone, password,
+            balance: 0, savings: 0, xp: 0, level: 1, history: [], achievements: [], friends: [],
+            card: Array.from({length:16}, () => Math.floor(Math.random()*10)).join(''),
+            inventory: [], stocks: { NTC: 0 }, loans: [], lastDaily: null, trustLevel: 1, trustScore: 0,
+            avatar: `https://i.pravatar.cc/150?u=${phone}`, // Unique avatar for each phone
+            bio: "Новый клиент Pylon Bank"
+        });
+        idx = users.length - 1;
+        save();
+    } else {
+        if(users[idx].password !== password) return notify('Неверный пароль!', 'danger');
+    }
+
+    currentUser = idx;
+    localStorage.setItem('session', idx);
+    initApp();
+    updateSavedAccounts();
+}
+
+function initApp() {
+    document.getElementById('auth').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    updateUI();
+    applySavedTheme();
+    initStockChart();
+    initChat();
+}
+
+function toggleTheme() {
+    const isLight = document.getElementById('themeToggle').checked;
+    document.body.classList.toggle('light-theme', isLight);
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    notify(isLight ? 'Светлая тема включена' : 'Темная тема включена');
+}
+
+function applySavedTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.getElementById('themeToggle').checked = true;
+        document.body.classList.add('light-theme');
+    }
+}
+
+function updateUI() {
+    const user = users[currentUser];
+    if (!user.achievements) user.achievements = [];
+    if (!user.friends) user.friends = []; // Ensure friends array exists
+    if (!user.inventory) user.inventory = [];
+    if (!user.stocks) user.stocks = { NTC: 0 };
+    if (!user.loans) user.loans = [];
+    if (!user.trustLevel) user.trustLevel = 1;
+    if (!user.trustScore) user.trustScore = 0;
+
+    document.getElementById('ownedStocks').innerText = user.stocks.NTC;
+    
+    checkAchievements();
+
+    document.getElementById('mainBalance').innerText = user.balance.toLocaleString() + ' ₸';
+    document.getElementById('savingsBalance').innerText = user.savings.toLocaleString() + ' ₸';
+    
+    // Steam Profile
+    document.getElementById('profileName').innerText = user.name;
+    document.getElementById('userAvatar').src = user.avatar;
+    document.getElementById('userLevel').innerText = user.level;
+    document.getElementById('userBio').innerText = user.bio;
+    
+    const xpToNext = user.level * 1000;
+    const progress = (user.xp / xpToNext) * 100;
+    document.getElementById('xpFill').style.width = progress + '%';
+    document.getElementById('xpStatus').innerText = `${user.xp} / ${xpToNext}`;
+
+    // Card
+    const c = user.card;
+    document.getElementById('fullCardNum').innerText = `${c.slice(0,4)} ${c.slice(4,8)} ${c.slice(8,12)} ${c.slice(12,16)}`;
+
+    // History
+    const hist = document.getElementById('fullHistoryList');
+    hist.innerHTML = user.history.length ? user.history.slice().reverse().map(h => `
+        <div class="history-item">
+            <div>
+                <b>${h.type}</b><br>
+                <small style="color:#64748b">${h.date}</small>
+            </div>
+            <span class="${h.amount > 0 ? 'amount-plus' : 'amount-minus'}">
+                ${h.amount > 0 ? '+' : ''}${h.amount.toLocaleString()} ₸
+            </span>
+        </div>
+    `).join('') : '<p>Операций пока нет</p>';
+
+    // Achievements Grid
+    const achGrid = document.getElementById('achievementsGrid');
+    achGrid.innerHTML = ACHIEVEMENTS_DATA.map(ach => {
+        const isUnlocked = user.achievements.includes(ach.id);
+        return `
+            <div class="badge-item ${isUnlocked ? 'unlocked' : ''}" title="${ach.desc}">
+                <span class="badge-icon">${ach.icon}</span>
+                <b>${ach.title}</b>
+            </div>
+        `;
+    }).join('');
+
+    renderLoans();
+    renderFriendsList();
+    renderSuggestedFriends();
+    
+    // Update Trust UI
+    document.getElementById('trustLevelLabel').innerText = user.trustLevel;
+    document.getElementById('trustBarFill').style.width = (user.trustScore) + '%';
+    document.getElementById('loanLimit').innerText = (user.trustLevel * 100000).toLocaleString() + ' ₸';
+
+    save();
+}
+
+function checkAchievements() {
+    const user = users[currentUser];
+    ACHIEVEMENTS_DATA.forEach(ach => {
+        if (ach.check(user) && !user.achievements.includes(ach.id)) {
+            user.achievements.push(ach.id);
+            // Небольшая задержка, чтобы UI успел обновиться
+            setTimeout(() => {
+                alert(`🏆 Новое достижение: ${ach.title}!\n${ach.desc}`);
+            }, 100);
+        }
+    });
+}
+
+function addXp(amount) {
+    const user = users[currentUser];
+    user.xp += amount;
+    const xpNeeded = user.level * 1000;
+    if(user.xp >= xpNeeded) {
+        user.level++;
+        user.xp -= xpNeeded;
+        notify('УРОВЕНЬ ПОВЫШЕН! Теперь ваш уровень: ' + user.level, 'success');
+    }
+}
+
+// Modal Logic
+function openModal(title, bodyHtml, confirmCallback) {
+    const overlay = document.getElementById('modalOverlay');
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalBody').innerHTML = bodyHtml;
+    overlay.classList.remove('hidden');
+    
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    confirmBtn.onclick = () => {
+        confirmCallback();
+        closeModal();
+    };
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+function openActionModal(type) {
+    if (type === 'deposit') {
+        openModal('Пополнение счета', `
+            <p>Введите сумму пополнения:</p>
+            <input type="number" id="modalInputAmt" placeholder="Сумма">
+        `, () => {
+            const amt = +document.getElementById('modalInputAmt').value;
+            if(amt > 0) {
+                users[currentUser].balance += amt;
+                users[currentUser].history.push({type: 'Пополнение', amount: amt, date: new Date().toLocaleString()});
+                addXp(Math.floor(amt / 10));
+                updateUI();
+                notify('Счёт пополнен на ' + amt + ' ₸');
+            }
+        });
+    } else if (type === 'withdraw') {
+        openModal('Вывод средств', `
+            <p>Введите сумму вывода:</p>
+            <input type="number" id="modalInputAmt" placeholder="Сумма">
+        `, () => {
+            const amt = +document.getElementById('modalInputAmt').value;
+            if(amt > 0 && amt <= users[currentUser].balance) {
+                users[currentUser].balance -= amt;
+                users[currentUser].history.push({type: 'Снятие наличных', amount: -amt, date: new Date().toLocaleString()});
+                updateUI();
+                notify('Выведено: ' + amt + ' ₸');
+            } else { notify('Недостаточно средств', 'danger'); }
+        });
+    } else if (type === 'transfer') {
+        openModal('Перевод по номеру карты', `
+            <p>Номер карты (16 цифр):</p>
+            <input type="text" id="modalInputCard" placeholder="0000 0000 0000 0000" maxlength="16">
+            <p>Сумма перевода:</p>
+            <input type="number" id="modalInputAmt" placeholder="Сумма">
+        `, () => {
+            const card = document.getElementById('modalInputCard').value.trim();
+            const amt = +document.getElementById('modalInputAmt').value;
+            const receiverIdx = users.findIndex(u => u.card === card);
+
+            if (!card || card.length !== 16) return notify('Некорректная карта', 'danger');
+            if(receiverIdx === -1) return notify('Карта не найдена', 'danger');
+            if(receiverIdx === currentUser) return notify('Нельзя себе', 'danger');
+            if(amt <= 0 || amt > users[currentUser].balance) return notify('Ошибка суммы', 'danger');
+
+            users[currentUser].balance -= amt;
+            users[receiverIdx].balance += amt;
+            users[currentUser].history.push({type: `Перевод пользователю ${users[receiverIdx].name}`, amount: -amt, date: new Date().toLocaleString()});
+            users[receiverIdx].history.push({type: `Перевод от ${users[currentUser].name}`, amount: amt, date: new Date().toLocaleString()});
+            addXp(50);
+            updateUI();
+            notify('Перевод выполнен!');
+        });
+    } else if (type === 'savings') {
+        openModal('Перевод в копилку', `
+            <p>Введите сумму для накопления:</p>
+            <input type="number" id="modalInputAmt" placeholder="Сумма">
+        `, () => {
+            const amt = +document.getElementById('modalInputAmt').value;
+            if(amt > 0 && amt <= users[currentUser].balance) {
+                users[currentUser].balance -= amt;
+                users[currentUser].savings += amt;
+                users[currentUser].history.push({type: 'Перевод в копилку', amount: -amt, date: new Date().toLocaleString()});
+                updateUI();
+                notify('Средства переведены в копилку');
+            } else { notify('Ошибка суммы', 'danger'); }
+        });
+    }
+}
+
+function claimDaily() {
+    const user = users[currentUser];
+    const today = new Date().toDateString();
+    if (user.lastDaily === today) return notify('Вы уже забирали бонус сегодня!', 'danger');
+    
+    user.balance += 500;
+    user.lastDaily = today;
+    user.history.push({type: 'Ежедневный бонус', amount: 500, date: new Date().toLocaleString()});
+    updateUI();
+    notify('Получено 500 ₸!', 'success');
+}
+
+function initStockChart() {
+    const ctx = document.getElementById('stockCanvas').getContext('2d');
+    stockChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array(stockData.length).fill(''),
+            datasets: [{
+                label: 'Цена NTC',
+                data: stockData,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                x: { display: false }
+            }
+        }
+    });
+}
+
+function updateStocks() {
+    let stockPrice = stockData[stockData.length - 1];
+    stockPrice += Math.floor(Math.random() * 120) - 58;
+    if (stockPrice < 100) stockPrice = 100;
+    
+    stockData.push(stockPrice);
+    if (stockData.length > 20) stockData.shift();
+    
+    const el = document.getElementById('stockPrice');
+    if (el) el.innerText = `Цена: ${stockPrice.toLocaleString()} ₸`;
+    
+    if (stockChart) {
+        stockChart.data.labels = Array(stockData.length).fill('');
+        stockChart.data.datasets[0].data = stockData;
+        stockChart.update('none');
+    }
+}
+setInterval(updateStocks, 3000);
+
+// Currency Rates Update
+setInterval(() => {
+    document.getElementById('rate-usd').innerText = (445 + Math.random() * 10).toFixed(2);
+    document.getElementById('rate-eur').innerText = (480 + Math.random() * 10).toFixed(2);
+}, 5000);
+
+function initChat() {
+    const msgs = [
+        { user: "Admin", text: "Добро пожаловать в глобальный чат Pylon Bank!" },
+        { user: "Alisher", text: "Кто-нибудь знает, когда акции NTC вырастут?" },
+        { user: "Elena", text: "Вчера купила на низах, уже +15%!" }
+    ];
+    const container = document.getElementById('chatMessages');
+    container.innerHTML = msgs.map(m => `
+        <div class="chat-msg msg-received">
+            <span class="msg-author">${m.user}</span>
+            ${m.text}
+        </div>
+    `).join('');
+}
+
+function smartAiResponse(text) {
+    const user = users[currentUser];
+    text = text.toLowerCase();
+    
+    if (text.includes("баланс")) return `Ваш текущий баланс: ${user.balance} ₸. Неплохо для начала!`;
+    if (text.includes("уровень") || text.includes("xp")) return `У вас ${user.level} уровень. До следующего нужно еще немного опыта.`;
+    if (text.includes("как заработать")) return "Вы можете покупать акции NTC или забирать ежедневный бонус!";
+    if (text.includes("друзья")) return "Зайдите в раздел 'Друзья' и введите номер телефона, чтобы добавить кого-то.";
+    if (text.includes("кредит")) return "В разделе 'Кредиты' можно взять до 100,000 ₸, если вам доверяет банк.";
+    if (text.includes("привет")) return "Привет! Я твой ИИ-помощник. Чем могу помочь?";
+    
+    return "Я анализирую ваш запрос... Попробуйте спросить про баланс, кредиты или как добавить друзей.";
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    if (!input.value.trim()) return;
+    
+    const container = document.getElementById('chatMessages');
+    container.innerHTML += `
+        <div class="chat-msg msg-sent">
+            <span class="msg-author">Вы</span>
+            ${input.value}
+        </div>
+    `;
+    
+    const text = input.value.toLowerCase();
+    input.value = '';
+    container.scrollTop = container.scrollHeight;
+
+    setTimeout(() => {
+        const reply = smartAiResponse(text);
+        container.innerHTML += `
+            <div class="chat-msg msg-received">
+                <span class="msg-author">Нейро-Помощник</span>
+                ${reply}
+            </div>
+        `;
+        container.scrollTop = container.scrollHeight;
+    }, 1500);
+}
+
+function buyStock(symbol) {
+    const user = users[currentUser];
+    const stockPrice = stockData[stockData.length - 1];
+    if (user.balance >= stockPrice) {
+        user.balance -= stockPrice;
+        user.stocks[symbol] = (user.stocks[symbol] || 0) + 1;
+        user.history.push({type: `Покупка акции ${symbol}`, amount: -stockPrice, date: new Date().toLocaleString()});
+        updateUI();
+        notify('Акция куплена!');
+    } else {
+        notify('Недостаточно средств!', 'danger');
+    }
+}
+
+function sellStock(symbol) {
+    const user = users[currentUser];
+    const stockPrice = stockData[stockData.length - 1];
+    if (user.stocks[symbol] > 0) {
+        user.balance += stockPrice;
+        user.stocks[symbol]--;
+        user.history.push({type: `Продажа акции ${symbol}`, amount: stockPrice, date: new Date().toLocaleString()});
+        updateUI();
+        notify('Акция продана за ' + stockPrice + ' ₸');
+    }
+}
+
+function takeLoan() {
+    const user = users[currentUser];
+    const amount = +document.getElementById('loanInput').value;
+    const limit = user.trustLevel * 100000;
+
+    if (user.loans.length > 0) return notify('У вас уже есть активный кредит!', 'danger');
+    if (amount <= 0 || amount > limit) return notify('Недопустимая сумма или превышен лимит!', 'danger');
+    
+    user.balance += amount;
+    user.loans.push({ amount: amount, debt: amount * 1.15, date: new Date().toLocaleString() });
+    user.history.push({type: 'Кредит получен', amount: amount, date: new Date().toLocaleString()});
+    document.getElementById('loanInput').value = '';
+    updateUI();
+    notify('Кредит оформлен!');
+}
+
+function payLoan(idx) {
+    const user = users[currentUser];
+    const loan = user.loans[idx];
+    if (user.balance >= loan.debt) {
+        user.balance -= loan.debt;
+        user.history.push({type: 'Погашение кредита', amount: -loan.debt, date: new Date().toLocaleString()});
+        
+        // Logic for Trust Level
+        user.trustScore += 25; 
+        if (user.trustScore >= 100 && user.trustLevel < 10) {
+            user.trustLevel++;
+            user.trustScore = 0;
+            notify('ВАШ УРОВЕНЬ ДОВЕРИЯ ПОВЫШЕН!', 'success');
+        }
+
+        user.loans.splice(idx, 1);
+        updateUI();
+        notify('Кредит успешно погашен!', 'success');
+    } else {
+        notify('Недостаточно средств для погашения!', 'danger');
+    }
+}
+
+function renderLoans() {
+    const container = document.getElementById('activeLoans');
+    if (!container) return;
+    const user = users[currentUser];
+    container.innerHTML = user.loans.length ? user.loans.map((l, i) => `
+        <div class="loan-card" style="border-color: var(--warning); margin-top:10px;">
+            <h4>Активный займ: ${l.amount.toLocaleString()} ₸</h4>
+            <p>К возврату: <b>${l.debt.toLocaleString()} ₸</b></p>
+            <button class="btn-op" onclick="payLoan(${i})">Погасить сейчас</button>
+        </div>
+    `).join('') : '<p>Нет активных кредитов</p>';
+}
+
+function buyMarket(id, price) {
+    const user = users[currentUser];
+    if (user.balance < price) return notify('Маловато денег!', 'danger');
+    if (user.inventory.includes(id)) return notify('У вас уже это есть!');
+    
+    user.balance -= price;
+    user.inventory.push(id);
+    user.history.push({type: `Покупка в маркете: ${id}`, amount: -price, date: new Date().toLocaleString()});
+    updateUI();
+    notify('Покупка совершена!', 'success');
+    if (id === 'fire') document.getElementById('profileName').style.color = 'var(--danger)';
+}
+
+function transfer() { openActionModal('transfer'); }
+
+function transferToFriend(friendPhone) {
+    const friend = users.find(u => u.phone === friendPhone);
+    openModal(`Перевод другу: ${friend.name}`, `
+        <p>Сумма перевода:</p>
+        <input type="number" id="modalInputAmt" placeholder="0 ₸">
+    `, () => {
+        const amt = +document.getElementById('modalInputAmt').value;
+        const friendIdx = users.findIndex(u => u.phone === friendPhone);
+        if(amt > 0 && amt <= users[currentUser].balance) {
+            users[currentUser].balance -= amt;
+            users[friendIdx].balance += amt;
+            users[currentUser].history.push({type: `Перевод другу ${friend.name}`, amount: -amt, date: new Date().toLocaleString()});
+            users[friendIdx].history.push({type: `Перевод от ${users[currentUser].name}`, amount: amt, date: new Date().toLocaleString()});
+            addXp(50);
+            updateUI();
+            notify('Деньги отправлены другу!');
+        } else { notify('Ошибка суммы', 'danger'); }
+    });
+}
+
+function toSavings() { openActionModal('savings'); }
+
+function editProfile() {
+    const user = users[currentUser];
+    openModal('Редактировать профиль', `
+        <input type="text" id="editName" value="${user.name}" placeholder="Имя">
+        <input type="text" id="editBio" value="${user.bio}" placeholder="О себе">
+        <input type="text" id="editAvatar" value="${user.avatar}" placeholder="URL аватара">
+    `, () => {
+        user.name = document.getElementById('editName').value;
+        user.bio = document.getElementById('editBio').value;
+        user.avatar = document.getElementById('editAvatar').value;
+        updateUI();
+        notify('Профиль сохранен');
+    });
+}
+
+function addFriend() {
+    openModal('Добавить в друзья', `
+        <p>Введите номер телефона игрока:</p>
+        <input type="text" id="friendPhoneInput" placeholder="Номер телефона">
+    `, () => {
+        const friendPhone = document.getElementById('friendPhoneInput').value.trim();
+        const friendIdx = users.findIndex(u => u.phone === friendPhone);
+        if (friendIdx === -1) return notify('Пользователь не найден', 'danger');
+        if (friendIdx === currentUser) return notify('Это вы!', 'danger');
+        if (users[currentUser].friends.includes(friendPhone)) return notify('Уже в друзьях');
+
+        users[currentUser].friends.push(friendPhone);
+        users[friendIdx].friends.push(users[currentUser].phone);
+        addXp(20);
+        updateUI();
+        notify('Друг добавлен!');
+    });
+}
+
+function renderFriendsList() {
+    const friendsListEl = document.getElementById('friendsList');
+    friendsListEl.innerHTML = '';
+
+    if (users[currentUser].friends.length === 0) {
+        friendsListEl.innerHTML = '<p style="color: #94a3b8;">У вас пока нет друзей. Добавьте кого-нибудь!</p>';
+        return;
+    }
+
+    users[currentUser].friends.forEach(friendPhone => {
+        const friend = users.find(u => u.phone === friendPhone);
+        if (friend) {
+            const friendItem = document.createElement('div');
+            friendItem.className = 'friend-item';
+            friendItem.innerHTML = `
+                <img src="${friend.avatar}" alt="${friend.name}">
+                <div class="friend-info">
+                    <h4>${friend.name}</h4>
+                    <span>Уровень: ${friend.level}</span>
+                </div>
+                <div class="friend-actions">
+                    <button onclick="transferToFriend('${friend.phone}')"><i class="fas fa-exchange-alt"></i> Перевести</button>
+                </div>
+            `;
+            friendsListEl.appendChild(friendItem);
+        }
+    });
+}
+
+function renderSuggestedFriends() {
+    const container = document.getElementById('suggestedFriendsList');
+    container.innerHTML = '';
+    const user = users[currentUser];
+    let suggestions = [];
+
+    // Logic: Friends of friends who are not my friends yet
+    user.friends.forEach(fPhone => {
+        const friend = users.find(u => u.phone === fPhone);
+        if (friend && friend.friends) {
+            friend.friends.forEach(ffPhone => {
+                if (ffPhone !== user.phone && !user.friends.includes(ffPhone) && !suggestions.includes(ffPhone)) {
+                    suggestions.push(ffPhone);
+                }
+            });
+        }
+    });
+
+    if (suggestions.length === 0) {
+        container.innerHTML = '<p style="font-size: 12px; color: var(--text-dim);">Пока нет новых предложений</p>';
+        return;
+    }
+
+    suggestions.slice(0, 3).forEach(sPhone => {
+        const sUser = users.find(u => u.phone === sPhone);
+        if (sUser) {
+            container.innerHTML += `
+                <div class="friend-item" style="background: var(--bg-dark); border: 1px solid var(--border);">
+                    <img src="${sUser.avatar}" style="width: 40px; height: 40px;">
+                    <div class="friend-info">
+                        <h4 style="font-size: 14px;">${sUser.name}</h4>
+                        <span style="font-size: 11px;">Есть общий друг</span>
+                    </div>
+                    <button class="nav-btn" onclick="addFriendByPhone('${sPhone}')" style="padding: 5px 10px; font-size: 12px; background: var(--accent); color: white;">Добавить</button>
+                </div>
+            `;
+        }
+    });
+}
+
+function addFriendByPhone(phone) {
+    const user = users[currentUser];
+    const friendIdx = users.findIndex(u => u.phone === phone);
+    if (friendIdx !== -1) {
+        user.friends.push(phone);
+        users[friendIdx].friends.push(user.phone);
+        addXp(20);
+        updateUI();
+        notify('Друг добавлен!');
+    }
+}
+
+function showSection(id) {
+    ['dashboard', 'profile', 'cards', 'friends', 'history', 'exchange', 'market', 'loans', 'settings', 'chat'].forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+    const btns = document.querySelectorAll('.nav-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    if (event && event.currentTarget) event.currentTarget.classList.add('active');
+}
+
+function resetAccount() {
+    openModal('Сброс аккаунта', '<p>Вы действительно хотите обнулить весь прогресс?</p>', () => {
+        const user = users[currentUser];
+        users[currentUser] = { ...users[currentUser], balance: 0, xp: 0, level: 1, history: [], loans: [], stocks: {NTC: 0} };
+        save();
+        location.reload();
+    });
+}
+
+function logout() {
+    localStorage.removeItem('session');
+    location.reload();
+}
+
+window.onload = () => {
+    updateSavedAccounts();
+    const session = localStorage.getItem('session');
+    if(session !== null && users[session]) {
+        currentUser = +session;
+        initApp();
+    }
+};
+</script>
+</body>
+</html>
